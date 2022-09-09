@@ -4,36 +4,15 @@ from tkinter.messagebox import *
 import threading
 import time
 
-debug = False
+from util.BothContent import BothContent
+from util.VideoOnly import VideoOnly
+from util.AudioOnly import AudioOnly
+
+debug = True
 bothContentObj = []
 videoOnlyObj = []
 audioOnlyObj = []
 indexA = 0
-
-class BothContent:
-
-   def __init__(self, itag, resolution, fps, audioBtr, fileFormat):
-      self.itag = itag
-      self.resolution = resolution
-      self.fps = fps
-      self.audioBtr = audioBtr
-      self.fileFormat = fileFormat.replace("video/", "")
-
-class VideoOnly:
-   
-   def __init__(self, itag, resolution, fps, fileFormat):
-      self.itag = itag
-      self.resolution = resolution
-      self.fps = fps
-      self.fileFormat = fileFormat.replace("video/", "")
-
-class AudioOnly:
-   
-   def __init__(self, itag, audioBtr, fileFormat):
-      self.itag = itag
-      self.audioBtr = audioBtr
-      self.fileFormat = fileFormat.replace("audio/", "")
-
 
 def callback(var):
    updateThread = threading.Thread(target=updateOnSeparateThread)
@@ -119,13 +98,16 @@ def dlOnSeparateThread(video):
       chosenDownload = audioOnlyObj[listboxAvailable.curselection()[0]].itag
    quitBtn['state'] = 'disabled'
    downloadBtn['state'] = 'disabled'
-   video.streams.get_by_itag(chosenDownload).download()
+   video.streams.get_by_itag(chosenDownload).download("downloads")
    quitBtn['state'] = 'normal'
    downloadBtn['state'] = 'normal'
 
 def updateOnSeparateThread():
    try:
       video = YouTube(str(urlVideo.get()))
+      if debug:
+        print(str(urlVideo.get()))
+        print(video)
       bothContent = video.streams.filter(progressive=True)
       videoOnly = video.streams.filter(adaptive=True, type="video")
       audioOnly = video.streams.filter(adaptive=True, type="audio")
